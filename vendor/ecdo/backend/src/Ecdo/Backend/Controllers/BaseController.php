@@ -3,8 +3,16 @@
 use Controller;
 use View;
 use Config;
+use Kris\LaravelFormBuilder\FormBuilder;
 
 class BaseController extends Controller {
+
+    protected $formBuilder;
+
+    public function __construct(FormBuilder $formBuilder)
+    {
+        $this->formBuilder = $formBuilder;
+    }
 
     /**
      * Setup the layout used by the controller.

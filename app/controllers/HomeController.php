@@ -1,5 +1,7 @@
 <?php
 
+use Ecdo\Backend\Controllers\BaseController;
+
 class HomeController extends BaseController {
 
 	/*

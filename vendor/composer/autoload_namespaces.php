@@ -33,6 +33,7 @@ return array(
     'Net' => array($vendorDir . '/phpseclib/phpseclib/phpseclib'),
     'Math' => array($vendorDir . '/phpseclib/phpseclib/phpseclib'),
     'Laravel' => array($vendorDir . '/anahkiasen/former/src'),
+    'Kris\\LaravelFormBuilder' => array($vendorDir . '/kris/laravel4-form-builder/src'),
     'Kmd\\Logviewer' => array($vendorDir . '/kmd/logviewer/src'),
     'Jeremeamia\\SuperClosure' => array($vendorDir . '/jeremeamia/SuperClosure/src'),
     'Illuminate' => array($vendorDir . '/laravel/framework/src'),

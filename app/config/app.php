@@ -127,6 +127,7 @@ return array(
         'Ecdo\Backend\BackendServiceProvider',
         'Kmd\Logviewer\LogviewerServiceProvider',
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
+        'Kris\LaravelFormBuilder\FormBuilderServiceProvider'
 
     ),
 
@@ -196,6 +197,7 @@ return array(
         'View'              => 'Illuminate\Support\Facades\View',
         'Former'            => 'Former\Facades\Former',
         'Sentry'            => 'Cartalyst\Sentry\Facades\Laravel\Sentry',
+        'FormBuilder'       => 'Kris\LaravelFormBuilder\Facades\FormBuilder'
 
     ),
 

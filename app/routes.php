@@ -11,12 +11,10 @@
 |
 */
 
-Route::get('/', function ()
-{
-
-});
+Route::get('/', 'HomeController@showWelcome');
 
 Route::any('/wechat', "WechatController@index");
-Route::any('/debug', function(){
-    return Config::get('wechat');
+Route::any('/debug', function ()
+{
+
 });

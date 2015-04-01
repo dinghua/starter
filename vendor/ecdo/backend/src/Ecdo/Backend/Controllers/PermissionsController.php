@@ -6,8 +6,11 @@ use Input;
 use Lang;
 use Event;
 use Config;
+use Request;
+use Response;
 use Ecdo\Backend\Provider\PermissionProvider;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Kris\LaravelFormBuilder\FormBuilder;
 
 class PermissionsController extends BaseController {
 
@@ -24,9 +27,10 @@ class PermissionsController extends BaseController {
      *
      * @param  PermissionProvider $permissions
      */
-    public function __construct(PermissionProvider $permissions)
+    public function __construct(PermissionProvider $permissions, FormBuilder $formBuilder)
     {
         $this->permissions = $permissions;
+        $this->formBuilder = $formBuilder;
     }
 
     /**
@@ -40,8 +44,9 @@ class PermissionsController extends BaseController {
     public function index()
     {
         $permissions = $this->permissions->all();
-        $roles = $this->permissions->getRoles();
-        return View::make(Config::get('backend::views.permissions_index') , compact('permissions','roles'));
+        $roles       = $this->permissions->getRoles();
+
+        return View::make(Config::get('backend::views.permissions_index'), compact('permissions', 'roles'));
     }
 
     /**
@@ -50,12 +55,28 @@ class PermissionsController extends BaseController {
      * @author Steve Montambeault
      * @link   http://stevemo.ca
      *
-     *@return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function create()
     {
+        $form  = $this->formBuilder->create('PermissionForm', [
+            'method' => 'POST',
+            'url'    => route('admin.permissions.store')
+        ]);
         $roles = $this->permissions->getRoles();
-        return View::make( Config::get('backend::views.permissions_create'), compact('roles'));
+        foreach ($roles[ 'inputs' ] as $name => $role)
+        {
+            $form->add($role[ 'name' ], 'checkbox', [
+                'label'         => $name,
+                'default_value' => $role[ 'value' ]
+            ]);
+        }
+
+        $form->add(Lang::get('backend::common.save'), 'submit', [
+            'attr' => [ 'class' => 'btn btn-primary' ]
+        ]);
+
+        return View::make(Config::get('backend::views.permissions_create'), compact('roles', 'form'));
     }
 
     /**
@@ -73,10 +94,30 @@ class PermissionsController extends BaseController {
         try
         {
             $permission = $this->permissions->findOrFail($id);
-            $roles = $this->permissions->getRoles();
-            return View::make( Config::get('backend::views.permissions_edit'), compact('permission','roles'));
-        }
-        catch ( ModelNotFoundException $e )
+            $roles      = $this->permissions->getRoles();
+
+            $form  = $this->formBuilder->create('PermissionForm', [
+                'method' => 'PUT',
+                'model'  => $permission,
+                'url'    => route('admin.permissions.update', $id)
+            ]);
+            $rules = $permission->rules;
+            foreach ($roles[ 'inputs' ] as $name => $role)
+            {
+                $checked = in_array($role[ 'value' ], $rules) ? TRUE : FALSE;
+                $form->add($role[ 'name' ], 'checkbox', [
+                    'label'         => $name,
+                    'default_value' => $role[ 'value' ],
+                    'checked'       => $checked
+                ]);
+            }
+
+            $form->add(Lang::get('backend::common.save'), 'submit', [
+                'attr' => [ 'class' => 'btn btn-primary' ]
+            ]);
+
+            return View::make(Config::get('backend::views.permissions_edit'), compact('permission', 'roles', 'form'));
+        } catch (ModelNotFoundException $e)
         {
             return Redirect::route('admin.permissions.index')->with('error', Lang::get('admin::permission.model_not_found'));
         }
@@ -95,12 +136,14 @@ class PermissionsController extends BaseController {
     {
         $validation = $this->getValidationService('permission');
 
-        if( $validation->passes() )
+        if ($validation->passes())
         {
             $perm = $this->permissions->create($validation->getData());
-            Event::fire('permissions.create', array($perm));
+            Event::fire('permissions.create', array( $perm ));
+
             return Redirect::route('admin.permissions.index')->with('success', Lang::get('backend::permissions.create_success'));
         }
+
         return Redirect::back()->withInput()->withErrors($validation->getErrors());
 
     }
@@ -118,26 +161,26 @@ class PermissionsController extends BaseController {
     {
         try
         {
-            $data = Input::all();
-            $data['id'] = $id;
-            $validation = $this->getValidationService('permission',$data);
+            $data         = Input::all();
+            $data[ 'id' ] = $id;
+            $validation   = $this->getValidationService('permission', $data);
 
-            if( $validation->passes() )
+            if ($validation->passes())
             {
-                $perm = $this->permissions->update($id,$validation->getData());
-                Event::fire('permissions.update', array($perm));
+                $perm = $this->permissions->update($id, $validation->getData());
+                Event::fire('permissions.update', array( $perm ));
+
                 return Redirect::route('admin.permissions.index')->with('success', Lang::get('backend::permissions.update_success'));
             }
 
             return Redirect::back()->withInput()->withErrors($validation->getErrors());
-        }
-        catch ( ModelNotFoundException $e )
+        } catch (ModelNotFoundException $e)
         {
             return Redirect::route('admin.permissions.index')->with('error', Lang::get('backend::permissions.model_not_found'));
         }
     }
 
-   /**
+    /**
      * Delete a permission
      *
      * @author Steve Montambeault
@@ -151,10 +194,14 @@ class PermissionsController extends BaseController {
         try
         {
             $eventData = $this->permissions->delete($id);
-            Event::fire('permission.delete', array($eventData));
+            Event::fire('permission.delete', array( $eventData ));
+            if (Request::ajax())
+            {
+                return Response::json([ 'result' => 1 ]);
+            }
+
             return Redirect::route('admin.permissions.index')->with('success', Lang::get('backend::permissions.delete_success'));
-        }
-        catch ( ModelNotFoundException $e)
+        } catch (ModelNotFoundException $e)
         {
             return Redirect::route('admin.permissions.index')->with('error', Lang::get('backend::permissions.model_not_found'));
         }

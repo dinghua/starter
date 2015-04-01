@@ -11,12 +11,14 @@
     "ecdo/backend": "dev-master",
     "overtrue/wechat": "dev-master",
     "kmd/logviewer": "1.2.*",
-    "barryvdh/laravel-ide-helper": "~1.11"
+    "barryvdh/laravel-ide-helper": "~1.11",
+    "kris/laravel4-form-builder": "~1.4"
   },
   "autoload": {
     "classmap": [
       "app/commands",
       "app/controllers",
+      "app/forms",
       "app/models",
       "app/database/migrations",
       "app/database/seeds",

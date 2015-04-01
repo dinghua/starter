@@ -25,6 +25,7 @@ class GroupsController extends BaseController {
     public function index()
     {
         $groups = Sentry::getGroupProvider()->findAll();
+
         return View::make(Config::get('backend::views.groups_index'), compact('groups'));
     }
 
@@ -38,7 +39,16 @@ class GroupsController extends BaseController {
      */
     public function create()
     {
-        return View::make(Config::get('backend::views.groups_create'));
+        $form  = $this->formBuilder->create('GroupForm', [
+            'method' => 'POST',
+            'url'    => route('admin.groups.store'),
+        ])->add(Lang::get('backend::common.save'), 'submit', [
+            'attr' => [ 'class' => 'btn btn-primary' ]
+        ])->add(Lang::get('backend::common.cancel'), 'link', [
+            'attr' => [ 'class' => 'btn btn-default' ],
+            'href' => route('admin.groups.index')
+        ]);
+        return View::make(Config::get('backend::views.groups_create'), compact('form'));
     }
 
     /**
@@ -54,9 +64,19 @@ class GroupsController extends BaseController {
         try
         {
             $group = Sentry::getGroupProvider()->findById($id);
-            return View::make(Config::get('backend::views.groups_edit'),compact('group'));
-        }
-        catch ( GroupNotFoundException $e)
+            $form  = $this->formBuilder->create('GroupForm', [
+                'method' => 'PUT',
+                'url'    => route('admin.groups.update', $id),
+                'model'  => $group
+            ])->add(Lang::get('backend::common.save'), 'submit', [
+                'attr' => [ 'class' => 'btn btn-primary' ]
+            ])->add(Lang::get('backend::common.cancel'), 'link', [
+                'attr' => [ 'class' => 'btn btn-default' ],
+                'href' => route('admin.groups.index')
+            ]);
+
+            return View::make(Config::get('backend::views.groups_edit'), compact('group', 'form'));
+        } catch (GroupNotFoundException $e)
         {
             return Redirect::route('admin.groups.index')->with('error', $e->getMessage());
         }
@@ -76,14 +96,13 @@ class GroupsController extends BaseController {
         try
         {
             $group = Sentry::getGroupProvider()->create(Input::only('name'));
-            Event::fire('groups.create', array($group));
+            Event::fire('groups.create', array( $group ));
+
             return Redirect::route('admin.groups.index')->with('success', Lang::get('backend::groups.create_success'));
-        }
-        catch (NameRequiredException $e)
+        } catch (NameRequiredException $e)
         {
             return Redirect::back()->withInput()->with('error', $e->getMessage());
-        }
-        catch (GroupExistsException $e)
+        } catch (GroupExistsException $e)
         {
             return Redirect::back()->withInput()->with('error', $e->getMessage());
         }
@@ -101,17 +120,16 @@ class GroupsController extends BaseController {
     {
         try
         {
-            $group = Sentry::getGroupProvider()->findById($id);
+            $group       = Sentry::getGroupProvider()->findById($id);
             $group->name = Input::get('name');
             $group->save();
-            Event::fire('groups.update', array($group));
-            return Redirect::route('admin.groups.index')->with('success', Lang::get('backend::groups.update_success') );
-        }
-        catch (GroupNotFoundException $e)
+            Event::fire('groups.update', array( $group ));
+
+            return Redirect::route('admin.groups.index')->with('success', Lang::get('backend::groups.update_success'));
+        } catch (GroupNotFoundException $e)
         {
             return Redirect::back()->withInput()->with('error', $e->getMessage());
-        }
-        catch (GroupExistsException $e)
+        } catch (GroupExistsException $e)
         {
             return Redirect::back()->withInput()->with('error', $e->getMessage());
         }
@@ -129,13 +147,15 @@ class GroupsController extends BaseController {
     {
         try
         {
-            $group = Sentry::getGroupProvider()->findById($id);
+            $group     = Sentry::getGroupProvider()->findById($id);
             $eventData = $group;
             $group->delete();
-            Event::fire('groups.delete', array($eventData));
+            Event::fire('groups.delete', array( $eventData ));
+            if(\Request::ajax()){
+                return \Response::json(['result'=>1]);
+            }
             return Redirect::route('admin.groups.index')->with('success', Lang::get('backend::groups.delete_success'));
-        }
-        catch (GroupNotFoundException $e)
+        } catch (GroupNotFoundException $e)
         {
             return Redirect::back()->with('error', $e->getMessage());
         }

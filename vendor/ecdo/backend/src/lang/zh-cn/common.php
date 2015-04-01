@@ -8,6 +8,7 @@ return array(
     'password'                => '密码',
     'email'                   => '邮箱',
     'remember_this_computer'  => '记住登陆状态',
+    'forget_password'         => '忘记密码',
     'don_account'             => '没有账号？',
     'register'                => '注册',
     'registration'            => '注册',
@@ -30,4 +31,9 @@ return array(
     'ok'                      => '确定',
     'cancel'                  => '取消',
     'are_you_sure'            => '你确定',
+    'new_edit'                => '新建/编辑',
+    'new'                     => '新建',
+    'save'                    => '保存',
+    'delete'                  => '删除',
+
 );
