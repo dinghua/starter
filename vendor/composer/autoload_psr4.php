@@ -8,4 +8,5 @@ $baseDir = dirname($vendorDir);
 return array(
     'Overtrue\\' => array($vendorDir . '/overtrue/wechat/src'),
     'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
+    'Barryvdh\\LaravelIdeHelper\\' => array($vendorDir . '/barryvdh/laravel-ide-helper/src'),
 );

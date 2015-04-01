@@ -79,7 +79,7 @@ return array(
     |
     */
 
-    'key'             => 'YourSecretKey!!!',
+    'key'             => 'YourSecrotKey!!!',
 
     'cipher'          => MCRYPT_RIJNDAEL_128,
 
@@ -126,6 +126,7 @@ return array(
         'Cartalyst\Sentry\SentryServiceProvider',
         'Ecdo\Backend\BackendServiceProvider',
         'Kmd\Logviewer\LogviewerServiceProvider',
+        'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
 
     ),
 
