@@ -1,0 +1,27 @@
+{
+    "name": "ecdo/backend",
+    "description": "Backend for Laravel 4",
+    "keywords": ["laravel", "admin", "backend", "sentry", "cartalyst"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "cooper",
+            "email": "myxiaoao@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "illuminate/support": "~4",
+        "cartalyst/sentry": "2.1.*",
+        "anahkiasen/former": "3.4.1"
+    },
+    "autoload": {
+        "classmap": [
+            "src/migrations"
+        ],
+        "psr-0": {
+            "Ecdo\\Backend": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
